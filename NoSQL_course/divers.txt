@@ -1,0 +1,45 @@
+Intro :
+
+db.publis.insertOne({
+    "type": "Book",
+    "title": "BASE analysis of NoSQL database",
+    "year": 2015,
+    "publisher": "Elsevier",
+    "authors": ["Chandra Ganesh"],
+    "source": "DBLP"
+})
+
+db.publis.insertMany([
+  {
+    "type": "Article",
+    "title": "A Comprehensive Study on NoSQL Databases",
+    "year": 2018,
+    "publisher": "Google Scholar",
+    "authors": ["John Doe", "Jane Smith"],
+    "source": "Google Scholar"
+  },
+  {
+    "type": "Article",
+    "title": "NoSQL Databases: An Overview",
+    "year": 2020,
+    "publisher": "Google Scholar",
+    "authors": ["Alice Johnson", "Bob Brown"],
+    "source": "Google Scholar"
+  }
+]);
+
+db.publis.find();
+
+
+
+Question 3:
+
+db.publis.find({
+    "$and": [
+        { type: "Book"},
+        { year: { "$gte": 2012 }}
+    ]
+})
+
+
+

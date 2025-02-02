@@ -1,0 +1,67 @@
+URL de connexion complète :
+
+mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.8
+
+1) Pour récup tout la ligne :
+
+db.restaurant.find({"borough": 'Brooklyn',"cuisine": 'Italian', 
+"address.street": '5 Avenue', name: /pizza/i}, {name:1})
+
+2) Pour afficher que le nom :
+
+db.restaurant.find({"borough": 'Brooklyn',"cuisine": 'Italian', 
+"address.street": '5 Avenue', name: /pizza/i}, {name:1})
+
+{name:1} nous donne :
+[
+  { _id: ObjectId('6790c1cfa448a3aeca378dca'), name: "Joe'S Pizza" },
+  {
+    _id: ObjectId('6790c1d0a448a3aeca37a290'),
+    name: "Gina'S Pizzaeria/ Deli"
+  }
+]
+
+3) Pour filtrer la requête :
+Ici  $lt signifie "less than" pour n'avoir que les restaurant de Manhattan
+avec AU MOINS une note infèrieur à 10.
+=> toute les sorties on au moins un score en dessous de 10
+
+db.getCollection('restaurant')
+.find({ "borough": "Manhattan", "grades.score": 
+      { $lt: 10 } }, { "name": 1, "grades.score": 1, "_id": 0 })
+
+
+4) Si l'on veut vraiment que TOUTES soient en dessous de 10, on ajoute un
+filtre en plus :
+
+$not:{$gte: 10}
+
+db.getCollection('restaurant').find({ "borough": "Manhattan", 
+"grades.score": { $lt: 10, $not:{$gte:10} } }, { "name": 1, "grades.score": 1, "_id": 0 })
+
+
+5) AND entre 2 conditions
+
+Ici on récupère les restaurants qui ont AU MOINS,
+une lettre C dans les grade ET au moins un score inférieur à 40 parmis les notes de restaurants
+
+db.getCollection('restaurant').find(
+  {"grades": {$elemMatch: { "grade": "C", "score": {$lt: 40} } }}, 
+  {"grades.grade": 1, "grades.score": 1});
+
+6) Aggregation : pour faire plusieurs opérations en une seule requête
+
+/*db.restaurant.aggregate([
+  { $match: { borough: "Brooklyn" } },
+  { $group: { _id: "$cuisine", count: { $sum: 1 } } },
+]);
+*/
+
+Varunwind = { $unwind: "$grades" };
+Vargroups1 = { $group: { _id: "$borough", average: { $avg: "$grades.score" } } };
+Varsort = { $sort: { "average": -1 } };
+
+db.restaurant.aggregate([Varunwind, Vargroups1, Varsort])
+
+db.restaurant.findOne();
+
